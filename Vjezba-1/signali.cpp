@@ -11,9 +11,22 @@ int tekuciPrioritet;
 bool cekanje=false;
 
 void obrada_prekida(int j){
-   
+    time_t vrijemeTr = time(NULL);
+    time_t  vrijemePo = time(NULL);
     cout << "Pocela obrada prekida: " << j << endl;
-   
+    int k=0;
+
+    while(true){
+        time_t novoVrijeme = time(NULL);
+        if(novoVrijeme- vrijemeTr != 0 && k!=5){
+            k++;
+            cout << "Obrada prekida: " << j << "   " << k << "/5" << endl;
+            vrijemeTr = novoVrijeme;
+        }
+        else if(k>=5){
+            break;
+        }
+    }
     cout << "Zavrsila obrada prekida: " << j << endl;
 }
 
