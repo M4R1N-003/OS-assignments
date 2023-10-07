@@ -11,9 +11,9 @@ int tekuciPrioritet;
 bool cekanje=false;
 
 void obrada_prekida(int j){
-    
+   
     cout << "Pocela obrada prekida: " << j << endl;
-    
+   
     cout << "Zavrsila obrada prekida: " << j << endl;
 }
 
@@ -28,6 +28,30 @@ void prekidnaRutina(int brSig){
     cout << "\nPrekidna rutina pozvana u: " << ctime(&vrijeme) << endl;
     cout << "Unesi razinu prekida: ";
     cin >> i;
+    cekanje=false;
+
+    oznakaCekanja[i] = 1;
+    int x;
+    do{
+        x = 0;
+        for(int j=tekuciPrioritet+1;j<N;j++){
+            if(oznakaCekanja[j] != 0){
+                x=j;
+            }
+        }
+
+        if(x > 0){
+            oznakaCekanja[x] = 0;
+            prioritet[x] = tekuciPrioritet;
+            tekuciPrioritet = x;
+            sigrelse(SIGINT);
+            obrada_prekida(x);
+            sighold(SIGINT);
+            tekuciPrioritet = prioritet[x];
+
+        }
+        
+    }while(x > 0);
 }
 
 int main(){
