@@ -32,7 +32,7 @@ void obrada_prekida(int j){
 
 void prekidnaRutina(int brSig){
     cekanje=true;
-    int i;
+    int index;
 
     time_t vrijeme; 
 
@@ -40,10 +40,10 @@ void prekidnaRutina(int brSig){
     
     cout << "\nPrekidna rutina pozvana u: " << ctime(&vrijeme) << endl;
     cout << "Unesi razinu prekida: ";
-    cin >> i;
+    cin >> index;
     cekanje=false;
 
-    oznakaCekanja[i] = 1;
+    oznakaCekanja[index] = 1;
     int x;
     do{
         x = 0;
