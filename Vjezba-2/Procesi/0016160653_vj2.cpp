@@ -20,7 +20,7 @@ int (*polje)[N];
 void generiranje(int indeks) {
     srand(time(0)+indeks);
     for (int i = 0; i < N; i++) {
-        polje[indeks][i] = rand()%100;
+        polje[indeks][i] = rand()%5000;
     }
 }
 
@@ -32,9 +32,8 @@ void racunanje(int indeks) {
     }
 
     double average = (double)sum / N;
-    usleep(1000000);
     cout << "Polje " << indeks+1 << " zbroj = " << sum << endl;
-    cout << "Polje " << indeks+1<< " aritm_sredina = " << average << endl;
+    cout << "Polje " << indeks+1 << " aritm_sredina = " << average << endl;
 }
 
 
@@ -46,12 +45,11 @@ int main(int argc, char* argv[]) {
 
     for (int i = 0; i < M; i++) {
         if (fork() == 0) {
-            //cout << "Kreiran proces [" << i << "] za generianje.\n"; 
             generiranje(i);
             exit(0);
         }
+        usleep(100);
         if (fork() == 0) {
-            //cout << "Kreiran proces [" << i << "] za računanje.\n";
             racunanje(i);
             exit(0);
         }
