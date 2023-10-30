@@ -35,7 +35,7 @@ void proc(int i) {
         for (int m = 1; m <= sveukupnoPonavljanja; m++) {
             brojac[i]++;
             cout << "\nDretva: " << i + 1 << ", K.O. br: " << k << " (" << brojac[i] << "/" << sveukupnoPonavljanja << ")";
-            sleep(1);
+            usleep(250000);
         }
         izadji_iz_kriticnog_odsjecka(i);
         brojac[i] = 0;

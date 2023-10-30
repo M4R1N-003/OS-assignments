@@ -15,7 +15,7 @@
 
 using namespace std;
 
-key_t kljuc;
+key_t kljucic;
 int (*polje)[N];
 
 void generiranje(int indeks) {
@@ -39,15 +39,15 @@ void racunanje(int indeks) {
 
 void prekidna_rutina(int sig){
     shmdt(polje);
-    shmctl(kljuc, IPC_RMID, NULL);
+    shmctl(kljucic, IPC_RMID, NULL);
 }
 
 
 int main(int argc, char* argv[]) {
     int M = atoi(argv[1]);
 
-    kljuc = shmget(IPC_PRIVATE, sizeof(polje)*M*N, 0600);
-    polje = (int(*)[N])shmat(kljuc, NULL, 0);
+    kljucic = shmget(IPC_PRIVATE, sizeof(polje)*M*N, 0600);
+    polje = (int(*)[N])shmat(kljucic, NULL, 0);
 
     sigset(SIGINT, prekidna_rutina);
 
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
     }
 
     shmdt(polje);
-    shmctl(kljuc, IPC_RMID, NULL);
+    shmctl(kljucic, IPC_RMID, NULL);
 
     return 0;
 }
