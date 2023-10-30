@@ -34,7 +34,7 @@ void proc(int i) {
         udji_u_kriticni_odsjecak(i, 1 - i);
         for (int m = 1; m <= sveukupnoPonavljanja; m++) {
             brojac[i]++;
-            cout << "Dretva: " << i + 1 << ", K.O. br: " << k << " (" << brojac[i] << "/" << sveukupnoPonavljanja << ")" << endl;
+            cout << "\nDretva: " << i + 1 << ", K.O. br: " << k << " (" << brojac[i] << "/" << sveukupnoPonavljanja << ")";
             sleep(1);
         }
         izadji_iz_kriticnog_odsjecka(i);
@@ -52,6 +52,7 @@ int main() {
     for (int i = 0; i < n; i++) {
         t[i].join();
     }
+    cout << endl;
 
     return 0;
 }
