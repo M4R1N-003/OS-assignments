@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <wait.h>
+#include <signal.h>
 
 #ifndef N
 #define N 30
@@ -36,12 +37,19 @@ void racunanje(int indeks) {
     cout << "Polje " << indeks+1 << " aritm_sredina = " << average << endl;
 }
 
+void prekidna_rutina(int sig){
+    shmdt(polje);
+    shmctl(kljuc, IPC_RMID, NULL);
+}
+
 
 int main(int argc, char* argv[]) {
     int M = atoi(argv[1]);
 
     kljuc = shmget(IPC_PRIVATE, sizeof(polje)*M*N, 0600);
     polje = (int(*)[N])shmat(kljuc, NULL, 0);
+
+    sigset(SIGINT, prekidna_rutina);
 
     for (int i = 0; i < M; i++) {
         if (fork() == 0) {
