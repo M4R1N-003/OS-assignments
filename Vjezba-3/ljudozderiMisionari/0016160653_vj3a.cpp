@@ -165,21 +165,21 @@ void *dretvenaFunkcijaMisionar(void *obala){
     return NULL;
 }
 
-int main(){
-    pthread_t dretvaID;
-    int ponavljanja = 2;
+void inicializacijaSemafora(int ponavljanja){
+
     for (int i = 0; i < ponavljanja; i++){
         for (int j = 0; j < usleep(1000000); j++){
             sem_init(&poljeSemafora[i][j], 0, 0);
         }
     }
+
     sem_init(&cunSemafor, 0, 0);
     sem_init(&kSemafor, 0, 1);
     sem_init(&ukrcatiPutnikeNaCun, 0, 0);
     sem_init(&iskrcatiPutnikeSaCuna, 0, 0);
-    pthread_create(&dretvaID, NULL, dretvenaFunkcijaCun, 0);
-    dretvenaFunkcijaSuma(NULL);
+}
 
+void unistavanjeSemafora(int ponavljanja){
     for (int i = 0; i < ponavljanja; i++){
         for (int j = 0; j < ponavljanja; j++){
             sem_destroy(&poljeSemafora[i][j]);
@@ -190,6 +190,18 @@ int main(){
     sem_destroy(&kSemafor);
     sem_destroy(&iskrcatiPutnikeSaCuna);
     sem_destroy(&cunSemafor);
+}
 
+int main(){
+
+    pthread_t dretvaID;
+    int ponavljanja = 2;
+
+    inicializacijaSemafora(ponavljanja);
+
+    pthread_create(&dretvaID, NULL, dretvenaFunkcijaCun, 0);
+    dretvenaFunkcijaSuma(NULL);
+
+    unistavanjeSemafora(ponavljanja);
     return 0;
 }
