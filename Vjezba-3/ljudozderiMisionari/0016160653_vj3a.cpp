@@ -168,7 +168,7 @@ void *dretvenaFunkcijaMisionar(void *obala){
 void inicializacijaSemafora(int ponavljanja){
 
     for (int i = 0; i < ponavljanja; i++){
-        for (int j = 0; j < usleep(1000000); j++){
+        for (int j = 0; j < ponavljanja; j++){
             sem_init(&poljeSemafora[i][j], 0, 0);
         }
     }

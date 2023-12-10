@@ -49,21 +49,23 @@ void semSignalizacija(int semaforID, int vrijednostSemafora) {
     semop(semaforID, &semBuferVar, 1);
 }
 
-void potrosacFun(int zbrojBrojeva){
+int potrosacFun(int zbrojBrojeva){
     while (shareVar->ukupno > 0) {
-            semCekanje(semaforID, 2);
-            semCekanje(semaforID, 0);
+        semCekanje(semaforID, 2);
+        semCekanje(semaforID, 0);
 
-            shareVar->izlazSem = (shareVar->izlazSem + 1) % N;
-            int zaprimljeniBroj = shareVar->M[shareVar->izlazSem];
-            printf("Potrošač prima: %d \n", zaprimljeniBroj);
-            usleep(250000);
-            (shareVar->ukupno)--;
-            zbrojBrojeva += zaprimljeniBroj;
+        shareVar->izlazSem = (shareVar->izlazSem) % N;
+        int zaprimljeniBroj = shareVar->M[shareVar->izlazSem];
+        printf("Potrošač prima: %d \n", zaprimljeniBroj);
+        shareVar->izlazSem++;
+        usleep(250000);
+        (shareVar->ukupno)--;
+        zbrojBrojeva += zaprimljeniBroj;
 
-            semSignalizacija(semaforID, 0);
-            semSignalizacija(semaforID, 1);
-        }
+        semSignalizacija(semaforID, 0);
+        semSignalizacija(semaforID, 1);
+    }
+    return zbrojBrojeva;
 }
 
 void alociranjeMemorije(){
@@ -96,7 +98,7 @@ int main(int argc, char *argv[]) {
     semaforID = semget(kljucSheraneMemorije, 3, 0600);
     semctl(semaforID, 0, SETVAL, 1);
     semctl(semaforID, 1, SETVAL, N);
-    semctl(semaforID, 2, SETVAL, 0);
+    semctl(semaforID, 2, SETVAL, 1); 
 
     for (int i = 0; i < brojProizvodjac; ++i) {
         srand(time(NULL) + i);
@@ -120,16 +122,16 @@ int main(int argc, char *argv[]) {
             }
 
             printf("Proizvođač broj: %d je završio sa slanjem!\n", i + 1);
-            exit(0);
+            _exit(0);
         }
     }
 
     if (fork() == 0) {
         int zbrojBrojeva = 0;
-        potrosacFun(zbrojBrojeva);
+        zbrojBrojeva = potrosacFun(zbrojBrojeva);
 
         printf("Zbroj brojeva koje je primio potrošač je: %d \n", zbrojBrojeva);
-        exit(0);
+        _exit(0);
     }
 
     for (int i = 0; i <= brojProizvodjac; i++) {
