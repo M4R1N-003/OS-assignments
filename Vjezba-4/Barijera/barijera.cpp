@@ -9,67 +9,69 @@
 #include <pthread.h>
 using namespace std;
 
-pthread_mutex_t monitor;
-pthread_cond_t array;
-int counter, thread_number;
+pthread_mutex_t mutexMonitorMG;
+pthread_cond_t poljeUvjeta;
+int brojacMon, brojDretveMG;
 
-bool Check(int argc) {
-	if (argc < 2 || argc > 2) {
+bool provjeraArgumenata(int brojArgumenataNR) {
+	if (brojArgumenataNR < 2 || brojArgumenataNR > 2) {
 		cout << "Pogresan unos! Potreban je 1 argument!" << endl; 
 		return false;
     }
     return true;
 }
 
-void *Barrier(void* arg) {
-		int *ID_number = (int*) arg;
-		int number = 0;
-		pthread_mutex_lock (&monitor);
-		counter++;
+void *dretvaBarijera(void* arg) {
+		int trenutnaDretva = *((int*) arg);
+		int vrijednostDretve = 0;
+		pthread_mutex_lock (&mutexMonitorMG);
+		brojacMon++;
 		
-		if (counter < thread_number) {
-			cout << "Dretva " << *ID_number << ". unesite broj: ";
-			cin >> number;
-			pthread_cond_wait (&array, &monitor);
+		if (brojacMon < brojDretveMG) {
+			cout << "Dretva " << trenutnaDretva << ". unesite broj: ";
+			cin >> vrijednostDretve;
+			pthread_cond_wait (&poljeUvjeta, &mutexMonitorMG);
 		}
 		
 		else {
-			cout << "Dretva " << *ID_number << ". unesite broj: ";
-			cin >> number;
+			cout << "Dretva " << trenutnaDretva << ". unesite broj: ";
+			cin >> vrijednostDretve;
 			cout << endl;
-			counter = 0;
-			pthread_cond_broadcast (&array);
+			brojacMon = 0;
+			pthread_cond_broadcast (&poljeUvjeta);
 		}
 		
-		pthread_mutex_unlock (&monitor);
-		pthread_mutex_lock (&monitor);
-		counter++;
+		pthread_mutex_unlock (&mutexMonitorMG);
+		pthread_mutex_lock (&mutexMonitorMG);
+		brojacMon++;
 		
-		if (counter < thread_number) {
-			cout << "Dretva " << *ID_number << ". uneseni broj je: " << number << endl;
-			pthread_cond_wait (&array, &monitor);
+		if (brojacMon < brojDretveMG) {
+			cout << "Dretva " << trenutnaDretva << ". uneseni broj je: " << vrijednostDretve << endl;
+			pthread_cond_wait (&poljeUvjeta, &mutexMonitorMG);
 		}
 		
 		else {
-			cout << "Dretva " << *ID_number << ". uneseni broj je: " << number << endl;
-			counter = 0;
-			pthread_cond_broadcast(&array);
+			cout << "Dretva " << trenutnaDretva << ". uneseni broj je: " << vrijednostDretve << endl;
+			brojacMon = 0;
+			pthread_cond_broadcast(&poljeUvjeta);
 		}
 		
-		pthread_mutex_unlock(&monitor);
+		pthread_mutex_unlock(&mutexMonitorMG);
+
+	return NULL;
 }
 
 void Remove_Monitors (int sig) {
-	pthread_mutex_destroy (&monitor);
-	pthread_cond_destroy (&array);
+	pthread_mutex_destroy (&mutexMonitorMG);
+	pthread_cond_destroy (&poljeUvjeta);
 	exit(0);
 }
 
-int main (int argc, char** argv) {
-	int prvi_argument;
+int main (int brojArgumenataNR, char *poljeArgumenataNR[]) {
+	int brojDretvi;
 	
-	if (Check(argc)) {
-    	prvi_argument = atoi (argv[1]);
+	if (provjeraArgumenata(brojArgumenataNR)) {
+    	brojDretvi = atoi (poljeArgumenataNR[1]);
 	}
 	else {
 		return 0;
@@ -78,24 +80,24 @@ int main (int argc, char** argv) {
 	cout << endl;
 	sigset (SIGINT, Remove_Monitors);
 		
-	counter = 0;
-	thread_number = prvi_argument;
-	pthread_mutex_init (&monitor, NULL);
-	pthread_cond_init (&array, NULL);
-	pthread_t tid [prvi_argument];
+	brojacMon = 0;
+	brojDretveMG = brojDretvi;
+	pthread_mutex_init (&mutexMonitorMG, NULL);
+	pthread_cond_init (&poljeUvjeta, NULL);
+	pthread_t idDretva [brojDretvi];
 	
-	int variable_1 [prvi_argument];
+	int varijabla1 [brojDretvi];
 	
-	for (int variable_2 = 0; variable_2 < thread_number; variable_2++) {
-		variable_1 [variable_2] = variable_2;
-		if (pthread_create (&tid[variable_2], NULL, Barrier, &variable_1 [variable_2]) != 0) {
+	for (int varijabla2 = 0; varijabla2 < brojDretveMG; varijabla2++) {
+		varijabla1 [varijabla2] = varijabla2;
+		if (pthread_create (&idDretva[varijabla2], NULL, dretvaBarijera, &varijabla1 [varijabla2]) != 0) {
 			cout << "Pogreska!" << endl;
 			exit(1);
 		}
 	}
 	
-	for(int variable_3 = 0; variable_3 < thread_number; variable_3++) {
-		pthread_join(tid[variable_3], NULL);
+	for(int varijabla3 = 0; varijabla3 < brojDretveMG; varijabla3++) {
+		pthread_join(idDretva[varijabla3], NULL);
 	}
 	
 	cout << endl;
