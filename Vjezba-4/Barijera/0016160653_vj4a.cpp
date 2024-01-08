@@ -21,20 +21,24 @@ bool provjeraArgumenata(int brojArgumenataNR) {
     return true;
 }
 
+void brojac(){
+	brojacMon++;
+}
+
 void *dretvaBarijera(void* arg) {
 		int trenutnaDretva = *((int*) arg);
 		int vrijednostDretve = 0;
 		pthread_mutex_lock (&mutexMonitorMG);
-		brojacMon++;
+		brojac();
 		
 		if (brojacMon < brojDretveMG) {
-			cout << "Dretva " << trenutnaDretva << ". unesite broj: ";
+			cout << "Dretva " << trenutnaDretva+1 << ". unesite broj: ";
 			cin >> vrijednostDretve;
 			pthread_cond_wait (&poljeUvjeta, &mutexMonitorMG);
 		}
 		
 		else {
-			cout << "Dretva " << trenutnaDretva << ". unesite broj: ";
+			cout << "Dretva " << trenutnaDretva+1 << ". unesite broj: ";
 			cin >> vrijednostDretve;
 			cout << endl;
 			brojacMon = 0;
@@ -43,15 +47,15 @@ void *dretvaBarijera(void* arg) {
 		
 		pthread_mutex_unlock (&mutexMonitorMG);
 		pthread_mutex_lock (&mutexMonitorMG);
-		brojacMon++;
+		brojac();
 		
 		if (brojacMon < brojDretveMG) {
-			cout << "Dretva " << trenutnaDretva << ". uneseni broj je: " << vrijednostDretve << endl;
+			cout << "Dretva " << trenutnaDretva+1 << ". uneseni broj je: " << vrijednostDretve << endl;
 			pthread_cond_wait (&poljeUvjeta, &mutexMonitorMG);
 		}
 		
 		else {
-			cout << "Dretva " << trenutnaDretva << ". uneseni broj je: " << vrijednostDretve << endl;
+			cout << "Dretva " << trenutnaDretva+1 << ". uneseni broj je: " << vrijednostDretve << endl;
 			brojacMon = 0;
 			pthread_cond_broadcast(&poljeUvjeta);
 		}
@@ -65,6 +69,22 @@ void Remove_Monitors (int sig) {
 	pthread_mutex_destroy (&mutexMonitorMG);
 	pthread_cond_destroy (&poljeUvjeta);
 	exit(0);
+}
+
+void kreiranjeDretava(int varijabla1[], pthread_t idDretva []){
+	for (int varijabla2 = 0; varijabla2 < brojDretveMG; varijabla2++) {
+		varijabla1 [varijabla2] = varijabla2;
+		if (pthread_create (&idDretva[varijabla2], NULL, dretvaBarijera, &varijabla1 [varijabla2]) != 0) {
+			cout << "Pogreska!" << endl;
+			exit(1);
+		}
+	}
+}
+
+void krajPrograma(pthread_t idDretva[]){
+	for(int varijabla3 = 0; varijabla3 < brojDretveMG; varijabla3++) {
+		pthread_join(idDretva[varijabla3], NULL);
+	}
 }
 
 int main (int brojArgumenataNR, char *poljeArgumenataNR[]) {
@@ -88,17 +108,9 @@ int main (int brojArgumenataNR, char *poljeArgumenataNR[]) {
 	
 	int varijabla1 [brojDretvi];
 	
-	for (int varijabla2 = 0; varijabla2 < brojDretveMG; varijabla2++) {
-		varijabla1 [varijabla2] = varijabla2;
-		if (pthread_create (&idDretva[varijabla2], NULL, dretvaBarijera, &varijabla1 [varijabla2]) != 0) {
-			cout << "Pogreska!" << endl;
-			exit(1);
-		}
-	}
+	kreiranjeDretava(varijabla1, idDretva);
 	
-	for(int varijabla3 = 0; varijabla3 < brojDretveMG; varijabla3++) {
-		pthread_join(idDretva[varijabla3], NULL);
-	}
+	krajPrograma(idDretva);
 	
 	cout << endl;
 	cout << "Program je zavrsio!" << endl;
