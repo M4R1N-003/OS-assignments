@@ -1,0 +1,1 @@
+zavrseni_klijenti++;
