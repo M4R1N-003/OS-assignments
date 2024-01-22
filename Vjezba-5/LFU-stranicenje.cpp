@@ -52,9 +52,7 @@ public:
         return stranice[minIndex];
     }
 
-    void printCache() {
-        cout << "#N 1 2 3 4 (n,t) (n,t) (n,t) (n,t)\n";
-        cout << "---------------------------------------------\n";
+    void ispisMatrice(){
         for (int i = 0; i < trenutnaVelicina; ++i) {
             cout << stranice[i] << " ";
             for (int j = 0; j < MAX_FRAMES; ++j) {
@@ -71,6 +69,12 @@ public:
             cout << "(" << ponavljanja[i] << "," << posljednjiPutPristupljeno[i] << ") ";
             cout << endl;
         }
+    }
+
+    void ispisSvega() {
+        cout << "#N 1 2 3 4 (n,t) (n,t) (n,t) (n,t)\n";
+        cout << "---------------------------------------------\n";
+        ispisMatrice();
         cout << endl;
     }
  
@@ -98,7 +102,7 @@ public:
             }
         }
 
-        printCache();
+        ispisSvega();
     }
 };
 
